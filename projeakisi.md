@@ -382,6 +382,83 @@ Sistemin aşırı yüklenmesini engellemek amacıyla API isteklerine kota (rate 
 API kullanımını kolaylaştırmak için anlaşılır ve detaylı bir API dokümantasyonu (örneğin Swagger) sağlanmalıdır.
 
 
+AWS Cloud-Based Development Environment
+1. Projenin Amacı
+Bu projenin amacı, bulut bilişim teknolojileri kullanılarak güvenli, esnek ve ölçeklenebilir bir yazılım geliştirme ortamı oluşturmaktır. Günümüzde birçok yazılım sistemi bulut altyapısı üzerinde geliştirilmektedir. Bu nedenle geliştiricilerin fiziksel donanıma bağımlı kalmadan çalışabilmesi için bulut tabanlı altyapılar büyük önem taşımaktadır.
+Bu proje kapsamında Amazon Web Services (AWS) platformu kullanılarak bir geliştirme ortamı oluşturulmuş ve bu ortamda sanal sunucu, veritabanı ve depolama servisleri yapılandırılmıştır. Kurulan sistem hem güvenlik hem de ölçeklenebilirlik açısından incelenmiştir.
+________________________________________
+2. Kullanılan Teknolojiler
+Proje kapsamında aşağıdaki bulut servisleri kullanılmıştır:
+•	Amazon EC2 (Elastic Compute Cloud)
+•	Amazon RDS (Relational Database Service)
+•	Amazon S3 (Simple Storage Service)
+•	AWS Security Groups
+•	GitHub (proje yönetimi ve sürüm kontrolü)
+Bu servisler birlikte kullanılarak temel bir bulut mimarisi oluşturulmuştur.
+________________________________________
+3. Sistem Mimarisi
+Kurulan sistem üç ana bileşenden oluşmaktadır:
+1.	Sanal Sunucu (EC2)
+2.	Veritabanı Servisi (RDS)
+3.	Bulut Depolama Servisi (S3)
+Bu mimari sayesinde uygulama katmanı, veri katmanı ve depolama katmanı birbirinden ayrılmıştır. Bu yaklaşım modern bulut mimarilerinde yaygın olarak kullanılmaktadır.
+________________________________________
+4. Sanal Sunucu Kurulumu (EC2)
+Amazon EC2 servisi kullanılarak bir sanal makine oluşturulmuştur. Bu sanal sunucu uygulamanın çalıştırılacağı geliştirme ortamı olarak kullanılmaktadır.
+EC2 servisi sayesinde kullanıcılar fiziksel bir sunucuya ihtiyaç duymadan internet üzerinden sanal bir sunucu oluşturabilir ve yönetebilirler.
+EC2 üzerinde yapılan işlemler:
+•	Yeni bir EC2 instance oluşturulmuştur
+•	Gerekli güvenlik ayarları yapılmıştır
+•	Sunucunun çalışır durumda olduğu kontrol edilmiştir
+EC2 servisi bulut ortamında esnek kaynak kullanımı sağlamaktadır.
+________________________________________
+5. Veritabanı Kurulumu (RDS)
+Proje kapsamında verilerin güvenli ve düzenli bir şekilde saklanabilmesi için Amazon RDS servisi kullanılmıştır. RDS, AWS tarafından yönetilen bir veritabanı servisidir ve kullanıcıların veritabanı yönetim işlemlerini kolaylaştırır.
+RDS kullanmanın avantajları şunlardır:
+•	Otomatik yedekleme
+•	Yüksek erişilebilirlik
+•	Kolay ölçeklenebilirlik
+•	Yönetilen veritabanı altyapısı
+Bu proje kapsamında oluşturulan veritabanı sunucusu uygulamanın veri saklama ihtiyacını karşılamak amacıyla yapılandırılmıştır.
+________________________________________
+6. Depolama Servisi (S3)
+Amazon S3 servisi veri depolama amacıyla kullanılmıştır. S3, AWS platformunun nesne tabanlı depolama servisidir ve büyük miktarda verinin güvenli şekilde saklanmasını sağlar.
+S3 servisinin temel özellikleri şunlardır:
+•	Yüksek veri dayanıklılığı
+•	Kolay erişim
+•	Sınırsız depolama kapasitesi
+•	Güvenli veri saklama
+Proje kapsamında oluşturulan S3 bucket ile verilerin bulut ortamında depolanması sağlanmıştır.
+________________________________________
+7. Güvenlik Yapılandırması
+Bulut sistemlerinde güvenlik oldukça önemli bir konudur. Bu nedenle proje kapsamında AWS güvenlik mekanizmaları kullanılmıştır.
+Güvenlik için yapılan işlemler:
+•	EC2 instance için Security Group yapılandırması yapılmıştır
+•	Sunucuya erişim kuralları belirlenmiştir
+•	Yetkisiz erişimlerin engellenmesi sağlanmıştır
+Security Group ayarları sayesinde sadece izin verilen bağlantıların sunucuya erişmesi sağlanmıştır. Bu sayede sistemin güvenliği artırılmıştır.
+________________________________________
+8. Ölçeklenebilirlik
+AWS altyapısının en önemli özelliklerinden biri ölçeklenebilir olmasıdır. Sistem ihtiyaç duyulduğunda kolayca büyütülebilir veya küçültülebilir.
+Örneğin:
+•	EC2 sunucusunun işlem gücü artırılabilir
+•	Depolama kapasitesi genişletilebilir
+•	Veritabanı kaynakları artırılabilir
+Bu özellikler sayesinde sistem yüksek kullanıcı yüklerine kolayca uyum sağlayabilir.
+________________________________________
+9. GitHub Entegrasyonu
+Proje yönetimi ve sürüm kontrolü amacıyla GitHub platformu kullanılmıştır. GitHub üzerinde oluşturulan ortak repo sayesinde proje dosyaları ekip üyeleri arasında paylaşılabilmektedir.
+GitHub kullanımının avantajları şunlardır:
+•	Versiyon kontrolü
+•	Ekip çalışması
+•	Kod yönetimi
+•	Proje dokümantasyonu
+________________________________________
+10. Sonuç
+Bu proje kapsamında Amazon Web Services platformu kullanılarak temel bir bulut geliştirme ortamı oluşturulmuştur. EC2, RDS ve S3 servisleri birlikte kullanılarak güvenli ve ölçeklenebilir bir sistem mimarisi kurulmuştur.
+Bulut bilişim teknolojileri sayesinde fiziksel altyapıya ihtiyaç duyulmadan güçlü ve esnek sistemler kurulabilmektedir.
+
+
 
 
 
