@@ -457,6 +457,200 @@ ________________________________________
 10. Sonuç
 Bu proje kapsamında Amazon Web Services platformu kullanılarak temel bir bulut geliştirme ortamı oluşturulmuştur. EC2, RDS ve S3 servisleri birlikte kullanılarak güvenli ve ölçeklenebilir bir sistem mimarisi kurulmuştur.
 Bulut bilişim teknolojileri sayesinde fiziksel altyapıya ihtiyaç duyulmadan güçlü ve esnek sistemler kurulabilmektedir.
+_____________________________________________________________________________________________________________
+Altyapı Kodlama (IaC) ve Akıllı Şehir Veri Platformu Kapsamlı Araştırma Raporu
+Hazırlayan: Muhammet Eren Alptekin
+Kurum: Fırat Üniversitesi, Yazılım Mühendisliği
+Proje: Akıllı Şehir Veri Platformu
+Teslim Tarihi: 12 Mart 2026
+Öncelik: Yüksek
+1. Giriş: Altyapı Kodlama (Infrastructure as Code - IaC) Nedir?
+IaC, bilgi işlem altyapısını (sunucular, veri tabanları, ağ yapılandırmaları) fiziksel donanım yapılandırması veya etkileşimli kullanıcı arayüzü araçları yerine makine tarafından okunabilir tanım dosyaları aracılığıyla yönetme ve hazırlama sürecidir.
+Neden İhtiyacımız Var?
+•	Hız: Manuel kurulumda saatler süren işler, kodla saniyeler içinde halledilir.
+•	Tutarlılık: "Benim bilgisayarımda çalışıyordu ama sunucuda çalışmıyor" muhabbeti biter. Her ortam (Dev, Test, Prod) birbirinin aynısı olur.
+•	Versiyon Kontrolü: Altyapı kod olduğu için GitHub'a atabilirsiniz. Kim, ne zaman, hangi ayarı değiştirmiş şeffaf şekilde görünür.
+•	Ölçeklenebilirlik: Proje büyüdüğünde, aynı altyapıdan onlarca kopyayı saniyeler içinde oluşturabilirsiniz.
+
+1.1 Azure API Management (Dış Kapı)
+Dış dünyaya açılan kapımız burası. Güvenlik, kota ve yetki işlerini burada bitiriyoruz.
+Terraform
+resource "azurerm_api_management" "apim_gateway" {
+  name                = "profesor-api-gateway"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  publisher_name      = "Profesör Yazılım"
+  publisher_email     = "eren@firat.edu.tr"
+
+  sku_name = "Developer_1" # Test için bu ideal, üretimde yükseltiriz.
+}
+
+1.2 Cold Storage (Arşiv Katmanı)
+1 yılı devirmiş veriye gidip de sıcak para dökülmez. Azure Storage Lifecycle Management ile 365 günü geçenleri otomatik arşive atacak ayarı yapıyoruz.
+Terraform
+resource "azurerm_storage_management_policy" "archive_policy" {
+  storage_account_id = azurerm_storage_account.sa.id
+
+  rule {
+    name    = "ArsivleVeKazan"
+    enabled = true
+    filters {
+      blob_types   = ["blockBlob"]
+    }
+    actions {
+      base_blob {
+        tier_to_archive_after_days_since_modification_greater_than = 365
+        # Eğer istenirse 7 yıl sonra tamamen silme kuralı da eklenebilir.
+      }
+    }
+  }
+}
+
+1.3 InfluxDB (Zaman Serisi Veritabanı)
+Terraform
+resource "azurerm_container_group" "influxdb_container" {
+  name                = "influxdb-instance"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  os_type             = "Linux"
+  ip_address_type     = "Public"
+  dns_name_label      = "profesor-influxdb"
+
+  container {
+    name   = "influxdb"
+    image  = "influxdb:latest"
+    cpu    = "1.0"
+    memory = "2.0"
+
+    ports {
+      port     = 8086
+      protocol = "TCP"
+    }
+  }
+}
+__________________________________________________________________________________________
+2. Bulut Platformu Analizi ve Karşılaştırması
+Projenin bulut tabanlı çalışma zorunluluğu, 7/24 kesintisiz hizmet ve ölçeklenebilirlik gereksinimleri doğrultusunda üç dev platform karşılaştırılmıştır:
+2.1. Amazon Web Services (AWS)
+AWS, 250'den fazla hizmetiyle piyasanın en geniş portföyünü sunan lider bulut platformudur.
+•	Avantajları: IoT Core ve Greengrass sayesinde sensör yönetimi ve edge computing konusunda güçlü bir altyapı sunar. Kapsamlı güvenlik sertifikalarına sahiptir.
+•	Dezavantajları: Fiyatlandırma karmaşıktır; IoT birim maliyeti rakiplerine göre yüksektir ve öğrenme eğrisi diktir.
+•	Tahmini Yıllık Maliyet (10.000 sensör): ~$75.000.
+2.2. Microsoft Azure (Önerilen)
+Azure, IoT ve Dijital İkiz teknolojisinde sektörün referans platformudur.
+•	Avantajları: Azure Digital Twins ile şehrin tüm varlıklarının dijital modeli oluşturulabilir. IoT Hub ile %99,9 SLA garantisi sunarak 7/24 gereksinimini karşılar. KVKK ve GDPR uyumluluğu en güçlü platformdur.
+•	Dezavantajları: Microsoft ekosistemi dışındaki entegrasyonlar zahmetli olabilir.
+•	Tahmini Yıllık Maliyet (10.000 sensör): ~$65.400.
+2.3. Google Cloud Platform (GCP)
+Yapay zeka ve büyük veri analitiğinde güçlüdür ancak 2023 yılında IoT Core hizmetini kapatması proje için ciddi bir risk oluşturmaktadır.
+•	Tahmini Yıllık Maliyet (10.000 sensör): ~$53.600.
+_____________________________________________________________________________________________________
+3. Mesaj Kuyruğu ve Veri Akış Sistemleri
+Projenin on binlerce sensörden gerçek zamanlı veri toplaması için güvenilir bir mesaj kuyruğu sistemi zorunludur.
+•	Apache Kafka (Önerilen): Saniyede 1 milyon+ mesaj işleyebilen endüstri standardıdır. Veri replay özelliği sayesinde geçmiş sensör verisine her zaman yeniden erişilebilir.
+•	RabbitMQ: Kurulumu kolaydır ancak projenin ölçeği için throughput yetersiz kalabilir ve veri replay özelliği yoktur.
+•	Apache Pulsar: Çoklu kiracı desteği ile şehrin farklı departmanları için veri izolasyonu sağlar.
+______________________________________________________________________________________________________
+4. Veritabanı ve Görselleştirme Mimarisi
+4.1. Veritabanı Katmanları
+•	Sensör Veritabanı (InfluxDB): Zaman serisi verileri için 2x + yazma hızı ve 10x daha az disk kullanımı sunar.
+•	Sistem Veritabanı (MongoDB): Cihaz bilgileri, kullanıcı yönetimi ve alarm tanımları için esnek JSON şeması sağlar.
+4.2. Görselleştirme Araçları
+•	Grafana: Operatörler için gerçek zamanlı sensör izleme ve alarm yönetimi sağlar.
+•	Microsoft Power BI: Yöneticiler için haftalık/aylık karar destek raporları ve Azure ile yerleşik entegrasyon sunar.
+____________________________________________________________________________________________________________
+5. IaC Araç Karşılaştırması: Terraform vs. CloudFormation
+Özellik	Terraform (HashiCorp)	AWS CloudFormation / Azure Bicep
+Bulut Desteği	Multi-Cloud (Azure, AWS, GCP hepsini aynı anda yönetir).	Sadece ilgili bulut sağlayıcısına bağımlıdır.
+Dil	HCL (Okuması ve yazması rahattır).	JSON/YAML veya Dile özgü syntax.
+Durum Yönetimi	.tfstate dosyası ile altyapının son halini saklar.	Bulut sağlayıcı tarafından arka planda yönetilir.
+Seçim: Akıllı Şehir projesi Azure odaklı olsa da Kafka ve InfluxDB gibi farklı ekosistemlerin birleşimi nedeniyle Terraform en esnek seçenektir.
+______________________________________________________________________________________________________________
+6. Uygulama Katmanı: Terraform Altyapı Kodları
+6.1. variables.tf (Değişken Tanımları)
+Terraform
+
+variable "project_name" {
+  default     = "SmartCityPlatform"
+}
+
+variable "location" {
+  default     = "North Europe" # KVKK uyumu ve 60+ bölge desteği için
+}
+
+variable "iot_hub_sku" {
+  default     = "S1" # 7/24 SLA garantisi için
+}
+6.2. main.tf (Ana Altyapı Kodları)
+Terraform
+
+# Azure IoT Hub Kurulumu
+resource "azurerm_iothub" "iot" {
+  name                = "SmartCity-IoTHub"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = var.location
+  sku {
+    name     = var.iot_hub_sku
+    capacity = "10" # 10.000 sensör kapasitesini karşılar
+  }
+}
+
+# Mesaj Kuyruğu: Azure HDInsight Kafka
+resource "azurerm_hdinsight_kafka_cluster" "kafka" {
+  name                = "SmartCity-Kafka-Cluster"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = var.location
+  cluster_version     = "4.0"
+  tier                = "Standard"
+
+  roles {
+    worker_node {
+      vm_size               = "Standard_D3_V2"
+      number_of_nodes       = 3 # Yüksek throughput için
+    }
+  }
+}
+
+# Sistem Veritabanı: MongoDB (CosmosDB API)
+resource "azurerm_cosmosdb_account" "mongodb" {
+  name                = "smartcity-metadata-db"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = var.location
+  kind                = "MongoDB"
+  offer_type          = "Standard"
+}
+6.3. outputs.tf (Bağlantı Çıktıları)
+Terraform
+
+output "iot_hub_endpoint" {
+  value = azurerm_iothub.iot.hostname
+}
+
+output "kafka_endpoint" {
+  value = azurerm_hdinsight_kafka_cluster.kafka.https_endpoint
+}
+__________________________________________________________________________________________________________
+7. Teknik İş Akışı ve Kullanım Kılavuzu
+   
+1.	terraform init: Projeyi başlatır ve gerekli Azure/HashiCorp eklentilerini indirir.
+2.	terraform plan: "Hangi kaynaklar kurulacak?" sorusunun yanıtını verir. 10.000 sensörlük IoT Hub ve Kafka kümesini önizlemenizi sağlar.
+3.	terraform apply: Onay verildiği an Azure üzerinde tüm mimariyi (IoT Hub, Kafka, MongoDB) otomatik olarak inşa eder.
+4.	terraform destroy: İş bittiğinde, yıllık ~$65.000 maliyetin boşa gitmemesi için tüm altyapıyı tek seferde siler.
+__________________________________________________________________________________________________________
+8. Sonuç ve Değerlendirme
+Akıllı Şehir Veri Platformu, saniyede milyonlarca mesajı işlemek ve 7/24 kesintisiz hizmet sunmak zorundadır. Bu devasa yapının manuel yönetilmesi imkansıza yakındır. Terraform (IaC) kullanımı sayesinde;
+•	Altyapı insan hatalarından arındırılır.
+•	Azure IoT Hub'ın sağladığı %99,9 SLA garantisi kodla mühürlenir.
+•	Apache Kafka ile sağlanan yüksek throughput kapasitesi dinamik olarak ölçeklenebilir.
+•	Maliyetler, kaynakların sadece ihtiyaç anında ayağa kaldırılmasıyla (apply/destroy) optimize edilir.
+__________________________________________________________________________________________________________
+9. Kaynakça
+    
+1.	Akıllı Şehir Veri Platformu — Bulut Teknoloji Karşılaştırma Raporu (Furkan Durkaç / Fırat Üniversitesi)
+2.	Morris, K. (2020). Infrastructure as Code: Dynamic Systems for the Cloud Age. O'Reilly Media.
+3.	HashiCorp. Terraform Patterns for Multi-Cloud Architectures. [Online].
+4.	Microsoft Azure. Azure IoT Hub and Digital Twins Technical Documentation.
+5.	Fowler, M. (2016). InfrastructureAsCode Principles. 
 
 
 
