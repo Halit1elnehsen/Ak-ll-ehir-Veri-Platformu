@@ -730,8 +730,31 @@ ________________________________________________________________________________
 4.	Microsoft Azure. Azure IoT Hub and Digital Twins Technical Documentation.
 5.	Fowler, M. (2016). InfrastructureAsCode Principles. 
 ************************************
-250541617 Halid Elnehsen 
-250541064 Mehmet Eren Alp Tekin
-250541045 Furkan durkaç
-250541106 efe Kaan durmaz
-250541131 Mustafa Alp
+## 📅 3. HAFTA: TASARIM VE VERİ MİMARİSİ
+*Teslim Tarihi:* 28 Mart 2026 | *Durum:* 🚧 Devam Ediyor
+
+### 1. UI/UX Wireframe ve Arayüz Tasarımı (Halid ELNEHSEN)
+Grafik tasarım süreçleri için platformun temel kullanıcı arayüzü (UI) ve kullanıcı deneyimi (UX) taslakları (wireframe) oluşturulmuştur. Tasarım, farklı kullanıcı profillerine (Vatandaş, Şehir Yöneticisi, Sistem Yöneticisi) göre 3 ana ekrana bölünmüştür.
+
+#### 📱 Ekran 1: Vatandaş Arayüzü (Mobil Uyumlu)
+* *Amacı:* Vatandaşların anlık çevresel verileri takip edebilmesi.
+* *Üst Menü:* Konum seçici (GPS entegreli) ve Kullanıcı Profili.
+* *Ana Bileşen (Widget):* Hava Kalitesi İndeksi (AQI). 
+  * UI Kuralı: Değer 0-50 arasıysa *Yeşil (Temiz), 150 üzeriyse **Kırmızı (Tehlikeli)* renk kodu kullanılacaktır.
+* *Uyarı Modülü (Pop-up):* Eğer hava kalitesi tehlikeli seviyedeyse ekranın üstünde otomatik açılan "Dışarı çıkarken maske takınız" bildirim kutusu.
+
+#### 🖥️ Ekran 2: Şehir Yöneticisi Dashboard (Masaüstü/Web)
+* *Amacı:* Şehirdeki trafik ve enerji durumunun harita üzerinde izlenmesi.
+* *Sol Menü (Sidebar):* Trafik Yoğunluğu, Enerji Tüketimi, Raporlar.
+* *Ana Ekran:* İnteraktif Şehir Haritası.
+  * UI Kuralı: Trafik yoğunlukları yolların üzerinde renkli çizgilerle (Akıcı: Yeşil, Yoğun: Kırmızı) gösterilecektir.
+* *Alt Panel:* İlçe bazlı enerji tüketimini gösteren dinamik Bar Grafikler.
+
+#### ⚙️ Ekran 3: Sistem Yöneticisi (Admin) Paneli
+* *Amacı:* Sisteme yeni sensör eklenmesi ve mevcut cihazların takibi.
+* *Üst Bar:* Toplam Sensör Sayısı, Aktif Cihazlar, Arızalı Cihazlar (Mini kartlar halinde).
+* *Ana Bileşen:* Sensör Veri Tablosu.
+  * Sütunlar: Sensör ID, Tipi, Konumu, Durumu (Aktif/Pasif).
+* *Aksiyon Butonu (Call to Action):* Sağ üst köşede belirgin bir "+ Yeni Sensör Ekle" butonu ve tıklandığında açılan kayıt formu (Modal).
+
+---
